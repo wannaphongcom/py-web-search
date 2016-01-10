@@ -43,8 +43,12 @@ def generate_url(query, first, recent, country_code):
     A url in the required format is generated.
     """
     # using bing search wikipedia
-    query = '+'.join(query.split())+'+site:'+country_code+'.wikipedia.org'
-    url = 'http://www.bing.com/search?q=' + query + '&first=' + first
+    query = '+'.join(query.split())
+    if country_code is not None:
+        wiki = '+site:'+country_code+'.wikipedia.org'
+    else:
+        wiki = '+site:wikipedia.org'
+    url = 'http://www.bing.com/search?q=' + query + wiki + '&first=' + first
     if recent in ['h', 'd', 'w', 'm', 'y']: # A True/False would be enough. This is just to maintain consistancy with google.
         url = url + '&filters=ex1%3a%22ez1%22'
     if country_code is not None:
@@ -82,7 +86,7 @@ class Wikipedia:
             if _url is None:
                 _url = url # Remembers the first url that is generated
             soup = BeautifulSoup(requests.get(url).text, "html.parser")
-            new_results = Bing.scrape_search_result(soup)
+            new_results = Wikipedia.scrape_search_result(soup)
             results += new_results
             start += len(new_results)
             if total_results is None:
@@ -98,7 +102,7 @@ class Wikipedia:
             if len(new_results) == 0:
                 break
             if related_queries == []:
-                related_queries = Bing.scrape_related(soup)
+                related_queries = Wikipedia.scrape_related(soup)
 
         results = results[:num]
 
